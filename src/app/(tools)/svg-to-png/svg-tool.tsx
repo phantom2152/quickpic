@@ -138,8 +138,15 @@ import {
 import { FileDropzone } from "@/components/shared/file-dropzone";
 
 function SVGToolCore(props: { fileUploaderProps: FileUploaderResult }) {
-  const { rawContent, imageMetadata, handleFileUploadEvent, cancel } =
-    props.fileUploaderProps;
+  const {
+    rawContent,
+    imageMetadata,
+    handleFileUploadEvent,
+    handleUrlFetch,
+    isUrlFetching,
+    urlFetchError,
+    cancel,
+  } = props.fileUploaderProps;
 
   const [scale, setScale] = useLocalStorage<Scale>("svgTool_scale", 1);
   const [customScale, setCustomScale] = useLocalStorage<number>(
@@ -157,6 +164,9 @@ function SVGToolCore(props: { fileUploaderProps: FileUploaderResult }) {
         description="Upload SVG"
         accept=".svg"
         onChange={handleFileUploadEvent}
+        onUrlFetch={handleUrlFetch}
+        isUrlFetching={isUrlFetching}
+        urlFetchError={urlFetchError}
       />
     );
 

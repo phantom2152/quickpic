@@ -60,6 +60,12 @@ export type FileUploaderResult = {
   /** Handler for file input change events */
   handleFileUpload: (file: File) => void;
   handleFileUploadEvent: (event: ChangeEvent<HTMLInputElement>) => void;
+  /** Handler for fetching SVG from URL */
+  handleUrlFetch: (url: string) => Promise<void>;
+  /** Loading state for URL fetching */
+  isUrlFetching: boolean;
+  /** Error message for URL fetching */
+  urlFetchError: string | null;
   /** Resets the upload state */
   cancel: () => void;
 };
@@ -71,6 +77,9 @@ export type FileUploaderResult = {
  * - rawContent: The raw file content as a string (useful for SVG tags)
  * - imageMetadata: Width, height, and name of the image
  * - handleFileUpload: Function to handle file input change events
+ * - handleUrlFetch: Function to fetch SVG from URL
+ * - isUrlFetching: Loading state for URL fetching
+ * - urlFetchError: Error message if URL fetch fails
  * - cancel: Function to reset the upload state
  */
 export const useFileUploader = (): FileUploaderResult => {
@@ -81,6 +90,11 @@ export const useFileUploader = (): FileUploaderResult => {
     height: number;
     name: string;
   } | null>(null);
+
+  const [isUrlFetching, setIsUrlFetching] = useState(false);
+  const [urlFetchError, setUrlFetchError] = useState<string | null>(null);
+
+
 
   const processFile = (file: File) => {
     const reader = new FileReader();
@@ -128,17 +142,62 @@ export const useFileUploader = (): FileUploaderResult => {
     acceptedFileTypes: ["image/*", ".jpg", ".jpeg", ".png", ".webp", ".svg"],
   });
 
+  const handleUrlFetch = async (url: string) => {
+    setIsUrlFetching(true);
+    setUrlFetchError(null);
+
+    try {
+      const response = await fetch("/api/fetch-svg", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setUrlFetchError(data.error || "Failed to fetch SVG");
+        return;
+      }
+
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      const fileName = pathname.split("/").pop() || "fetched-svg.svg";
+
+      setRawContent(data.content);
+
+      const { content: svgContent, metadata } = parseSvgFile(
+        data.content,
+        fileName,
+      );
+
+      setImageContent(svgContent);
+      setImageMetadata(metadata);
+    } catch (error) {
+      console.error("Error fetching SVG:", error);
+      setUrlFetchError("An error occurred while fetching the SVG");
+    }finally {
+      setIsUrlFetching(false);
+    }
+  }
+
   const cancel = () => {
     setImageContent("");
     setImageMetadata(null);
+    setUrlFetchError(null);
   };
 
   return {
-    imageContent,
+     imageContent,
     rawContent,
     imageMetadata,
     handleFileUpload: processFile,
     handleFileUploadEvent,
+    handleUrlFetch,
+    isUrlFetching,
+    urlFetchError,
     cancel,
   };
 };
