@@ -1,3 +1,16 @@
-## QuickPic - Tools For Pictures (By Theo)
+message
+# QuickPic (Fork) — Tools For Pictures
 
-I wanted a better way to upscale svgs as pngs so I built it. Also wanted a better way to make images into squares. Open source because why not. Free because it only runs on client.
+Hey! If this looks like Theo’s QuickPic (https://quickpic.t3.gg/), you’re right.
+This is a fork of the original repo: https://github.com/t3dotgg/quickpic
+
+I forked it to add one extra thing I really wanted:
+- Fetch SVGs directly from a URL and convert to PNG (no manual download needed)
+
+Everything else is kept as close to the original as possible. All credit for the base
+app goes to Theo — I just added remote file conversion on top.
+
+
+## Credits
+- Base project by Theo (t3dotgg): https://github.com/t3dotgg/quickpic
+- Live original: https://quickpic.t3.gg/
