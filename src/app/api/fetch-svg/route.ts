@@ -49,6 +49,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let fileName = parsedUrl.pathname.split("/").pop() || "fetched-svg.svg";
+    const cd = response.headers.get("content-disposition") || "";
+    // match filename*=UTF-8''... or filename="..."
+    const fnStarMatch = cd.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+    const fnMatch = cd.match(/filename\s*=\s*"([^"]+)"/i);
+    if (fnStarMatch && fnStarMatch?.length >=2 && typeof(fnStarMatch[1]) === "string") {
+      try {
+        fileName = decodeURIComponent(fnStarMatch[1]);
+      } catch {}
+    } else if (fnMatch && fnMatch?.length >=2 && typeof(fnMatch[1]) === "string") {
+      fileName = fnMatch[1];
+    }
+
     // Check content type
     const contentType = response.headers.get("content-type") || "";
     const isSvg =
@@ -87,6 +100,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       content: svgContent,
       contentType: contentType,
+      fileName
     });
   } catch (error) {
     console.error("Error fetching SVG:", error);

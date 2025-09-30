@@ -162,18 +162,16 @@ export const useFileUploader = (): FileUploaderResult => {
         return;
       }
 
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-      const fileName = pathname.split("/").pop() || "fetched-svg.svg";
+      // const urlObj = new URL(url);
+      // const pathname = urlObj.pathname;
+      // const fileName = pathname.split("/").pop() || "fetched-svg.svg";
 
       setRawContent(data.content);
 
-      const { content: svgContent, metadata } = parseSvgFile(
-        data.content,
-        fileName,
-      );
+      const { content: svgText, fileName } = data;
+      const { content: svgURL, metadata } = parseSvgFile(svgText, fileName);
 
-      setImageContent(svgContent);
+      setImageContent(svgURL);
       setImageMetadata(metadata);
     } catch (error) {
       console.error("Error fetching SVG:", error);
